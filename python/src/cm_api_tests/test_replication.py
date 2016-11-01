@@ -54,14 +54,14 @@ class TestReplicationTypes(unittest.TestCase):
       "exclusionFilters" : ["ac"]
     }'''
     args = utils.deserialize(RAW, ApiHdfsReplicationArguments)
-    self.assertEquals('vst2', args.sourceService.peerName)
-    self.assertEquals('Cluster 1 - CDH4', args.sourceService.clusterName)
-    self.assertEquals('HDFS-1', args.sourceService.serviceName)
-    self.assertEquals('/data', args.sourcePath)
-    self.assertEquals('/copy/data2', args.destinationPath)
-    self.assertEquals('MAPREDUCE-1', args.mapreduceServiceName)
-    self.assertEquals('medium', args.schedulerPoolName)
-    self.assertEquals('systest', args.userName)
+    self.assertEqual('vst2', args.sourceService.peerName)
+    self.assertEqual('Cluster 1 - CDH4', args.sourceService.clusterName)
+    self.assertEqual('HDFS-1', args.sourceService.serviceName)
+    self.assertEqual('/data', args.sourcePath)
+    self.assertEqual('/copy/data2', args.destinationPath)
+    self.assertEqual('MAPREDUCE-1', args.mapreduceServiceName)
+    self.assertEqual('medium', args.schedulerPoolName)
+    self.assertEqual('systest', args.userName)
     self.assertFalse(args.dryRun)
     self.assertTrue(args.abortOnError)
     self.assertFalse(args.removeMissingFiles)
@@ -69,7 +69,7 @@ class TestReplicationTypes(unittest.TestCase):
     self.assertFalse(args.preservePermissions)
     self.assertTrue(args.preserveReplicationCount)
     self.assertFalse(args.skipTrash)
-    self.assertEquals('DYNAMIC', args.replicationStrategy)
+    self.assertEqual('DYNAMIC', args.replicationStrategy)
     self.assertFalse(args.preserveXAttrs)
 
   def test_hive_arguments(self):
@@ -102,17 +102,17 @@ class TestReplicationTypes(unittest.TestCase):
       "replicateImpalaMetadata" : true
     }'''
     args = utils.deserialize(RAW, ApiHiveReplicationArguments)
-    self.assertEquals('vst2', args.sourceService.peerName)
-    self.assertEquals('Cluster 1 - CDH4', args.sourceService.clusterName)
-    self.assertEquals('HIVE-1', args.sourceService.serviceName)
+    self.assertEqual('vst2', args.sourceService.peerName)
+    self.assertEqual('Cluster 1 - CDH4', args.sourceService.clusterName)
+    self.assertEqual('HIVE-1', args.sourceService.serviceName)
     self.assertTrue(args.force)
     self.assertTrue(args.replicateData)
     self.assertIsInstance(args.hdfsArguments, ApiHdfsReplicationArguments)
     self.assertIsInstance(args.tableFilters, list)
-    self.assertEquals(1, len(args.tableFilters))
+    self.assertEqual(1, len(args.tableFilters))
     self.assertIsInstance(args.tableFilters[0], ApiHiveTable)
-    self.assertEquals("db1", args.tableFilters[0].database)
-    self.assertEquals("table1", args.tableFilters[0].tableName)
+    self.assertEqual("db1", args.tableFilters[0].database)
+    self.assertEqual("table1", args.tableFilters[0].tableName)
     self.assertTrue(args.replicateImpalaMetadata)
 
   def test_hive_results(self):
@@ -138,23 +138,23 @@ class TestReplicationTypes(unittest.TestCase):
       "runAsUser" : "systest"
     }'''
     res = utils.deserialize(RAW, ApiHiveReplicationResult)
-    self.assertEquals('EXPORT', res.phase)
-    self.assertEquals(1, res.tableCount)
-    self.assertEquals(1, len(res.tables))
-    self.assertEquals('db1', res.tables[0].database)
-    self.assertEquals('table1', res.tables[0].tableName)
-    self.assertEquals(1, res.impalaUDFCount)
-    self.assertEquals(1, len(res.impalaUDFs))
-    self.assertEquals('db1', res.impalaUDFs[0].database)
-    self.assertEquals('func1(STRING)', res.impalaUDFs[0].signature)
-    self.assertEquals(1, res.errorCount)
-    self.assertEquals('db1', res.errors[0]['database'])
-    self.assertEquals('table2', res.errors[0]['tableName'])
-    self.assertEquals('func2(INT)', res.errors[0]['impalaUDF'])
-    self.assertEquals('message', res.errors[0]['error'])
-    self.assertEquals(50, res.dataReplicationResult.progress)
+    self.assertEqual('EXPORT', res.phase)
+    self.assertEqual(1, res.tableCount)
+    self.assertEqual(1, len(res.tables))
+    self.assertEqual('db1', res.tables[0].database)
+    self.assertEqual('table1', res.tables[0].tableName)
+    self.assertEqual(1, res.impalaUDFCount)
+    self.assertEqual(1, len(res.impalaUDFs))
+    self.assertEqual('db1', res.impalaUDFs[0].database)
+    self.assertEqual('func1(STRING)', res.impalaUDFs[0].signature)
+    self.assertEqual(1, res.errorCount)
+    self.assertEqual('db1', res.errors[0]['database'])
+    self.assertEqual('table2', res.errors[0]['tableName'])
+    self.assertEqual('func2(INT)', res.errors[0]['impalaUDF'])
+    self.assertEqual('message', res.errors[0]['error'])
+    self.assertEqual(50, res.dataReplicationResult.progress)
     self.assertFalse(res.dryRun)
-    self.assertEquals(res.runAsUser, 'systest')
+    self.assertEqual(res.runAsUser, 'systest')
 
   def test_schedule(self):
     RAW = '''{
@@ -260,10 +260,10 @@ class TestReplicationTypes(unittest.TestCase):
       "password" : "pwd"
     }'''
     peer = ApiCmPeer.from_json_dict(json.loads(RAW), None)
-    self.assertEquals("peer1", peer.name)
-    self.assertEquals("http://peer1", peer.url)
-    self.assertEquals("user1", peer.username)
-    self.assertEquals("pwd", peer.password)
+    self.assertEqual("peer1", peer.name)
+    self.assertEqual("http://peer1", peer.url)
+    self.assertEqual("user1", peer.username)
+    self.assertEqual("pwd", peer.password)
 
   def _parse_time(self, tstr):
     return datetime.datetime.strptime(tstr, Attr.DATE_FMT)

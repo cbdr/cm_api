@@ -106,23 +106,23 @@ def do_get_aliases(name):
     do_print(alias)
 
 def do_print(metric):
-  print "<ApiMetricSchema>"
-  print "  name: %s" % metric.name
-  print "  isCounter: %s" % metric.isCounter
+  print("<ApiMetricSchema>")
+  print("  name: %s" % metric.name)
+  print("  isCounter: %s" % metric.isCounter)
   if metric.unitNumerator:
-    print "  unitNumerator: %s" % metric.unitNumerator
+    print("  unitNumerator: %s" % metric.unitNumerator)
   if metric.unitDenominator:
-    print "  unitDenominator: %s" % metric.unitDenominator
+    print("  unitDenominator: %s" % metric.unitDenominator)
   if metric.aliases:
-    print "  aliases: %s" % map(str, metric.aliases)
+    print("  aliases: %s" % list(map(str, metric.aliases)))
   if metric.sources:
-    print "  sources:"
-    for (k,v) in metric.sources.items():
-      print "    %s: %s" % (k, map(str, v))
+    print("  sources:")
+    for (k,v) in list(metric.sources.items()):
+      print("    %s: %s" % (k, list(map(str, v))))
 
 def usage():
   doc = inspect.getmodule(usage).__doc__
-  print >>sys.stderr, textwrap.dedent(doc % (sys.argv[0],))
+  print(textwrap.dedent(doc % (sys.argv[0],)), file=sys.stderr)
 
 def setup_logging(level):
   logging.basicConfig()
@@ -135,8 +135,8 @@ def main(argv):
   # Argument parsing
   try:
     opts, args = getopt.getopt(argv[1:], "ha:")
-  except getopt.GetoptError, err:
-    print >>sys.stderr, err
+  except getopt.GetoptError as err:
+    print(err, file=sys.stderr)
     usage()
     return -1
 
@@ -148,12 +148,12 @@ def main(argv):
       do_get_aliases(val)
       return 0
     else:
-      print >>sys.stderr, "Unknown flag:", option
+      print("Unknown flag:", option, file=sys.stderr)
       usage()
       return -1
 
   if args:
-    print >>sys.stderr, "Unknown trailing argument:", args
+    print("Unknown trailing argument:", args, file=sys.stderr)
     usage()
     return -1
 

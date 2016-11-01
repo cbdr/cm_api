@@ -83,31 +83,31 @@ class TimeSeriesQuery(object):
     return self._api.query_timeseries(query, from_time, to_time)
 
 def do_print(response):
-  print "<ApiTimeSeriesResponse>"
-  print "  query: %s" % (response.timeSeriesQuery)
+  print("<ApiTimeSeriesResponse>")
+  print("  query: %s" % (response.timeSeriesQuery))
   if response.warnings:
-    print "  warnings: %s" % (response.warnings)
+    print("  warnings: %s" % (response.warnings))
   if response.errors:
-    print "  errors: %s" % (response.errors)
+    print("  errors: %s" % (response.errors))
   if response.timeSeries:
-    print "  timeSeries:"
+    print("  timeSeries:")
     for ts in response.timeSeries:
       metadata = ts.metadata
-      print "    metadata:"
-      print "      metricName: %s" % (metadata.metricName)
-      print "      entityName: %s" % (metadata.entityName)
-      print "      startTime: %s" % (metadata.startTime)
-      print "      endTime: %s" % (metadata.endTime)
+      print("    metadata:")
+      print("      metricName: %s" % (metadata.metricName))
+      print("      entityName: %s" % (metadata.entityName))
+      print("      startTime: %s" % (metadata.startTime))
+      print("      endTime: %s" % (metadata.endTime))
       if metadata.unitNumerators:
-        print "      unitNumerators: %s" % (metadata.unitNumerators)
+        print("      unitNumerators: %s" % (metadata.unitNumerators))
       if metadata.unitDenominators: 
-        print "      unitDenominators: %s" % (metadata.unitDenominators)
+        print("      unitDenominators: %s" % (metadata.unitDenominators))
       if metadata.attributes:
-        print "      attributes: %s" % (metadata.attributes)
-      print "    data:"
+        print("      attributes: %s" % (metadata.attributes))
+      print("    data:")
       for data in ts.data:
-        print "      timestamp: %s value: %s type: %s" % \
-               (data.timestamp, data.value, data.type)
+        print("      timestamp: %s value: %s type: %s" % \
+               (data.timestamp, data.value, data.type))
 
 def do_query(query, from_time, to_time):
   tsquery = TimeSeriesQuery()
@@ -116,7 +116,7 @@ def do_query(query, from_time, to_time):
 
 def usage():
   doc = inspect.getmodule(usage).__doc__
-  print >>sys.stderr, textwrap.dedent(doc % (sys.argv[0],))
+  print(textwrap.dedent(doc % (sys.argv[0],)), file=sys.stderr)
 
 def setup_logging(level):
   logging.basicConfig()
@@ -131,8 +131,8 @@ def main(argv):
   # Argument parsing
   try:
     opts, args = getopt.getopt(argv[1:], "hf:t:")
-  except getopt.GetoptError, err:
-    print >>sys.stderr, err
+  except getopt.GetoptError as err:
+    print(err, file=sys.stderr)
     usage()
     return -1
 
@@ -142,11 +142,11 @@ def main(argv):
       return -1
     elif option == '-f':
       try:
-        print val
+        print(val)
         from_time = datetime.strptime(val, "%Y-%m-%dT%H:%M")
         from_time = from_time.isoformat()
       except:
-        print >>sys.stderr, "Unable to parse the from time:"
+        print("Unable to parse the from time:", file=sys.stderr)
         usage()
         return -1
     elif option == '-t':
@@ -154,11 +154,11 @@ def main(argv):
         to_time = datetime.strptime(val, "%Y-%m-%dT%H:%M")
         to_time = to_time.isoformat()
       except:
-        print >>sys.stderr, "Unable to parse the to time:"
+        print("Unable to parse the to time:", file=sys.stderr)
         usage()
         return -1
     else:
-      print >>sys.stderr, "Unknown flag:", option
+      print("Unknown flag:", option, file=sys.stderr)
       usage()
       return -1
 
@@ -167,7 +167,7 @@ def main(argv):
     do_query(args[0], from_time, to_time)
     return 0
   else:
-    print >>sys.stderr, "No query:"
+    print("No query:", file=sys.stderr)
     usage()
     return -1
 

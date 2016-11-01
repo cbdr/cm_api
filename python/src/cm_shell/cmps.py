@@ -21,9 +21,9 @@ import argparse
 import readline
 import os
 import cmd
-from prettytable import PrettyTable
+from .prettytable import PrettyTable
 from cm_api.api_client import ApiResource, ApiException
-from urllib2 import URLError
+from urllib.error import URLError
 
 # Config
 CONFIG = {'cluster': None, 'output_type': 'table', 'seperator': None}
@@ -86,15 +86,15 @@ class ClouderaShell(cmd.Cmd):
             print(table)
 
         if CONFIG['output_type'] == "csv":
-            print(','.join(headers))
+            print((','.join(headers)))
             for r in rows:
-                print(','.join(r))
+                print((','.join(r)))
 
         if CONFIG['output_type'] == "custom":
             SEP = CONFIG['seperator']
-            print(SEP.join(headers))
+            print((SEP.join(headers)))
             for r in rows:
-                print(SEP.join(r))
+                print((SEP.join(r)))
 
     def emptyline(self):
         """Called each time a user hits enter, by
@@ -111,7 +111,7 @@ class ClouderaShell(cmd.Cmd):
 
         self.cluster_object = cluster
         if not EXECUTE:
-            print("Connected to %s" % (cluster.name))
+            print(("Connected to %s" % (cluster.name)))
         self.prompt = cluster.name + "> "
         return True
 
@@ -314,7 +314,7 @@ class ClouderaShell(cmd.Cmd):
             return None
 
         if self.service_action(service=service, action="start"):
-            print("%s is being started" % (service))
+            print(("%s is being started" % (service)))
         else:
             print("Error starting service")
             return None
@@ -332,7 +332,7 @@ class ClouderaShell(cmd.Cmd):
             return None
 
         if self.service_action(service=service, action="restart"):
-            print("%s is being restarted" % (service))
+            print(("%s is being restarted" % (service)))
         else:
             print("Error restarting service")
             return None
@@ -350,7 +350,7 @@ class ClouderaShell(cmd.Cmd):
             return None
 
         if self.service_action(service=service, action="stop"):
-            print("%s is being stopped" % (service))
+            print(("%s is being stopped" % (service)))
         else:
             print("Error stopping service")
             return None
@@ -399,7 +399,7 @@ class ClouderaShell(cmd.Cmd):
                 self.services_autocomplete('', service, 0, 0)
 
             for s in self.CACHED_SERVICES:
-                print("= " + s.upper() + " =")
+                print(("= " + s.upper() + " ="))
                 self.do_roles(s)
             return None
         try:
@@ -575,7 +575,7 @@ class ClouderaShell(cmd.Cmd):
                 print("Error: Cluster not found")
                 return None
 
-        print("Version: %s" % (cluster.version))
+        print(("Version: %s" % (cluster.version)))
 
     def complete_version(self, text, line, start_index, end_index):
         return self.cluster_autocomplete(text, line, start_index, end_index)
@@ -598,7 +598,7 @@ def main():
 
     # Check if a username was suplied, if not, prompt the user
     if not args.username:
-        args.username = raw_input("Enter Username: ")
+        args.username = input("Enter Username: ")
 
     # Check if the password was supplied, if not, prompt the user
     if not args.password:
@@ -617,7 +617,7 @@ def main():
             print("Unable to Authenticate")
             sys.exit(1)
     except URLError:
-        print("Error: Could not connect to %s" % (args.hostname))
+        print(("Error: Could not connect to %s" % (args.hostname)))
         sys.exit(1)
 
     CONFIG['cluster'] = args.cluster

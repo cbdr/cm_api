@@ -17,7 +17,7 @@
 
 # Deploys a CDH cluster and configures CM management services.
 
-import socket, sys, time, ConfigParser, csv, pprint, urllib2
+import socket, sys, time, configparser, csv, pprint, urllib.request, urllib.error, urllib.parse
 from subprocess import Popen, PIPE, STDOUT
 from math import log as ln
 from cm_api.api_client import ApiResource
@@ -40,7 +40,7 @@ parser.add_option('-r', '--headlampdbpassword', dest='HEADLAMP_DATABASE_PASSWORD
 PRETTY_PRINT = pprint.PrettyPrinter(indent=4)
 
 # Prep for reading config props from external file
-CONFIG = ConfigParser.ConfigParser()
+CONFIG = configparser.ConfigParser()
 CONFIG.read("clouderaconfig.ini")
 
 
@@ -108,7 +108,7 @@ if PARCEL_VERSION.lower() == "latest":
    # strip off everything after the last - in that item, including the -
    LATEST_PARCEL_URL = 'http://archive.cloudera.com/cdh5/parcels/latest/'
    PARCEL_PREFIX = 'CDH-'
-   dir_list = urllib2.urlopen(LATEST_PARCEL_URL).read()
+   dir_list = urllib.request.urlopen(LATEST_PARCEL_URL).read()
    dir_list = dir_list[dir_list.index(PARCEL_PREFIX)+len(PARCEL_PREFIX):]
    dir_list = dir_list[:dir_list.index('"')]
    PARCEL_VERSION = dir_list[:dir_list.rfind('-')]
@@ -465,9 +465,9 @@ def deploy_parcels(cluster, parcels):
             break
          if p.state.errors:
             raise Exception(str(p.state.errors))
-         print "Downloading %s: %s / %s" % (parcel['name'], p.state.progress, p.state.totalProgress)
+         print("Downloading %s: %s / %s" % (parcel['name'], p.state.progress, p.state.totalProgress))
          time.sleep(15)
-      print "Downloaded %s" % (parcel['name'])
+      print("Downloaded %s" % (parcel['name']))
       p.start_distribution()
       while True:
          p = cluster.get_parcel(parcel['name'], parcel['version'])
@@ -475,9 +475,9 @@ def deploy_parcels(cluster, parcels):
             break
          if p.state.errors:
             raise Exception(str(p.state.errors))
-         print "Distributing %s: %s / %s" % (parcel['name'], p.state.progress, p.state.totalProgress)
+         print("Distributing %s: %s / %s" % (parcel['name'], p.state.progress, p.state.totalProgress))
          time.sleep(15)
-      print "Distributed %s" % (parcel['name'])
+      print("Distributed %s" % (parcel['name']))
       p.activate()
 
 # Deploys management services. Not all of these are currently turned on because some require a license.
@@ -575,7 +575,7 @@ def deploy_hdfs(cluster, hdfs_service_name, hdfs_config, hdfs_nn_service_name, h
 def init_hdfs(hdfs_service, hdfs_name, timeout):
    cmd = hdfs_service.format_hdfs("{0}-nn".format(hdfs_name))[0]
    if not cmd.wait(timeout).success:
-      print "WARNING: Failed to format HDFS, attempting to continue with the setup" 
+      print("WARNING: Failed to format HDFS, attempting to continue with the setup") 
 
 
 # Deploys MapReduce - JT, TTs, gateways.
@@ -946,7 +946,7 @@ def post_startup(cluster, hdfs_service, oozie_service):
    # Deploy client configs to all necessary hosts
    cmd = cluster.deploy_client_config()
    if not cmd.wait(CMD_TIMEOUT).success:
-      print "Failed to deploy client configs for {0}".format(cluster.name)
+      print("Failed to deploy client configs for {0}".format(cluster.name))
    
    # Noe change permissions on the /user dir so YARN will work
    shell_command = ['sudo -u hdfs hadoop fs -chmod 775 /user']
@@ -958,89 +958,89 @@ def main():
    API = ApiResource(CM_HOST, version=5, username=ADMIN_USER, password=ADMIN_PASS)
    MANAGER = API.get_cloudera_manager()
    MANAGER.update_config(CM_CONFIG)
-   print "Connected to CM host on " + CM_HOST + " and updated CM configuration"
+   print("Connected to CM host on " + CM_HOST + " and updated CM configuration")
 
    CLUSTER = init_cluster(API, CLUSTER_NAME, CDH_VERSION, CLUSTER_HOSTS, CM_HOST)
-   print "Initialized cluster " + CLUSTER_NAME + " which uses CDH version " + CDH_VERSION
+   print("Initialized cluster " + CLUSTER_NAME + " which uses CDH version " + CDH_VERSION)
 
    deploy_management(MANAGER, MGMT_SERVICENAME, MGMT_SERVICE_CONFIG, MGMT_ROLE_CONFIG, AMON_ROLENAME, AMON_ROLE_CONFIG, APUB_ROLENAME, APUB_ROLE_CONFIG, ESERV_ROLENAME, ESERV_ROLE_CONFIG, HMON_ROLENAME, HMON_ROLE_CONFIG, SMON_ROLENAME, SMON_ROLE_CONFIG, NAV_ROLENAME, NAV_ROLE_CONFIG, NAVMS_ROLENAME, NAVMS_ROLE_CONFIG, RMAN_ROLENAME, RMAN_ROLE_CONFIG)
-   print "Deployed CM management service " + MGMT_SERVICENAME + " to run on " + CM_HOST
+   print("Deployed CM management service " + MGMT_SERVICENAME + " to run on " + CM_HOST)
    
    deploy_parcels(CLUSTER, PARCELS)
-   print "Downloaded and distributed parcels: "
+   print("Downloaded and distributed parcels: ")
    PRETTY_PRINT.pprint(PARCELS)
 
    zookeeper_service = deploy_zookeeper(CLUSTER, ZOOKEEPER_SERVICE_NAME, ZOOKEEPER_HOSTS, ZOOKEEPER_SERVICE_CONFIG, ZOOKEEPER_ROLE_CONFIG)
-   print "Deployed ZooKeeper " + ZOOKEEPER_SERVICE_NAME + " to run on: "
+   print("Deployed ZooKeeper " + ZOOKEEPER_SERVICE_NAME + " to run on: ")
    PRETTY_PRINT.pprint(ZOOKEEPER_HOSTS)
    
    hdfs_service = deploy_hdfs(CLUSTER, HDFS_SERVICE_NAME, HDFS_SERVICE_CONFIG, HDFS_NAMENODE_SERVICE_NAME, HDFS_NAMENODE_HOST, HDFS_NAMENODE_CONFIG, HDFS_SECONDARY_NAMENODE_HOST, HDFS_SECONDARY_NAMENODE_CONFIG, HDFS_DATANODE_HOSTS, HDFS_DATANODE_CONFIG, HDFS_GATEWAY_HOSTS, HDFS_GATEWAY_CONFIG)
-   print "Deployed HDFS service " + HDFS_SERVICE_NAME + " using NameNode on " + HDFS_NAMENODE_HOST + ", SecondaryNameNode on " + HDFS_SECONDARY_NAMENODE_HOST + ", and DataNodes running on: "
+   print("Deployed HDFS service " + HDFS_SERVICE_NAME + " using NameNode on " + HDFS_NAMENODE_HOST + ", SecondaryNameNode on " + HDFS_SECONDARY_NAMENODE_HOST + ", and DataNodes running on: ")
    PRETTY_PRINT.pprint(HDFS_DATANODE_HOSTS)
    init_hdfs(hdfs_service, HDFS_SERVICE_NAME, CMD_TIMEOUT)
-   print "Initialized HDFS service"
+   print("Initialized HDFS service")
 
    # mapred and yarn are mutually exclusive; only deploy one of them
    #mapred_service = deploy_mapreduce(CLUSTER, MAPRED_SERVICE_NAME, MAPRED_SERVICE_CONFIG, MAPRED_JT_HOST, MAPRED_JT_CONFIG, MAPRED_TT_HOSTS, MAPRED_TT_CONFIG, MAPRED_GW_HOSTS, MAPRED_GW_CONFIG)
-   print "Deployed MapReduce service " + MAPRED_SERVICE_NAME + " using JobTracker on " + MAPRED_JT_HOST + " and TaskTrackers running on "
+   print("Deployed MapReduce service " + MAPRED_SERVICE_NAME + " using JobTracker on " + MAPRED_JT_HOST + " and TaskTrackers running on ")
    PRETTY_PRINT.pprint(MAPRED_TT_HOSTS)
    
    yarn_service = deploy_yarn(CLUSTER, YARN_SERVICE_NAME, YARN_SERVICE_CONFIG, YARN_RM_HOST, YARN_RM_CONFIG, YARN_JHS_HOST, YARN_JHS_CONFIG, YARN_NM_HOSTS, YARN_NM_CONFIG, YARN_GW_HOSTS, YARN_GW_CONFIG)
-   print "Deployed YARN service " + YARN_SERVICE_NAME + " using ResourceManager on " + YARN_RM_HOST + ", JobHistoryServer on " + YARN_JHS_HOST + ", and NodeManagers on "
+   print("Deployed YARN service " + YARN_SERVICE_NAME + " using ResourceManager on " + YARN_RM_HOST + ", JobHistoryServer on " + YARN_JHS_HOST + ", and NodeManagers on ")
    PRETTY_PRINT.pprint(YARN_NM_HOSTS)
    
    spark_service = deploy_spark(CLUSTER, SPARK_SERVICE_NAME, SPARK_SERVICE_CONFIG, SPARK_MASTER_HOST, SPARK_MASTER_CONFIG, SPARK_WORKER_HOSTS, SPARK_WORKER_CONFIG, SPARK_GW_HOSTS, SPARK_GW_CONFIG)
-   print "Deployed SPARK service " + SPARK_SERVICE_NAME + " using SparkMaster on " + SPARK_MASTER_HOST + " and SparkWorkers on "
+   print("Deployed SPARK service " + SPARK_SERVICE_NAME + " using SparkMaster on " + SPARK_MASTER_HOST + " and SparkWorkers on ")
    PRETTY_PRINT.pprint(SPARK_WORKER_HOSTS)
    
    deploy_hbase(CLUSTER, HBASE_SERVICE_NAME, HBASE_SERVICE_CONFIG, HBASE_HM_HOST, HBASE_HM_CONFIG, HBASE_RS_HOSTS, HBASE_RS_CONFIG, HBASE_THRIFTSERVER_SERVICE_NAME, HBASE_THRIFTSERVER_HOST, HBASE_THRIFTSERVER_CONFIG, HBASE_GW_HOSTS, HBASE_GW_CONFIG)
-   print "Deployed HBase service " + HBASE_SERVICE_NAME + " using HMaster on " + HBASE_HM_HOST + " and RegionServers on "
+   print("Deployed HBase service " + HBASE_SERVICE_NAME + " using HMaster on " + HBASE_HM_HOST + " and RegionServers on ")
    PRETTY_PRINT.pprint(HBASE_RS_HOSTS)
    
    hive_service = deploy_hive(CLUSTER, HIVE_SERVICE_NAME, HIVE_SERVICE_CONFIG, HIVE_HMS_HOST, HIVE_HMS_CONFIG, HIVE_HS2_HOST, HIVE_HS2_CONFIG, HIVE_WHC_HOST, HIVE_WHC_CONFIG, HIVE_GW_HOSTS, HIVE_GW_CONFIG)
-   print "Depoyed Hive service " + HIVE_SERVICE_NAME + " using HiveMetastoreServer on " + HIVE_HMS_HOST + " and HiveServer2 on " + HIVE_HS2_HOST
+   print("Depoyed Hive service " + HIVE_SERVICE_NAME + " using HiveMetastoreServer on " + HIVE_HMS_HOST + " and HiveServer2 on " + HIVE_HS2_HOST)
    init_hive(hive_service)
-   print "Initialized Hive service"
+   print("Initialized Hive service")
    
    impala_service = deploy_impala(CLUSTER, IMPALA_SERVICE_NAME, IMPALA_SERVICE_CONFIG, IMPALA_SS_HOST, IMPALA_SS_CONFIG, IMPALA_CS_HOST, IMPALA_CS_CONFIG, IMPALA_ID_HOSTS, IMPALA_ID_CONFIG)
-   print "Deployed Impala service " + IMPALA_SERVICE_NAME + " using StateStore on " + IMPALA_SS_HOST + ", CatalogServer on " + IMPALA_CS_HOST + ", and ImpalaDaemons on "
+   print("Deployed Impala service " + IMPALA_SERVICE_NAME + " using StateStore on " + IMPALA_SS_HOST + ", CatalogServer on " + IMPALA_CS_HOST + ", and ImpalaDaemons on ")
    PRETTY_PRINT.pprint(IMPALA_ID_HOSTS)
    
    #Need to start the cluster now as subsequent services need the cluster to be runnign
    #TODO can we just start ZK, and maybe HDFS, instead of everything? It's just needed for the search service
-   print "About to restart cluster"
+   print("About to restart cluster")
    CLUSTER.stop().wait()
    CLUSTER.start().wait()
-   print "Done restarting cluster"
+   print("Done restarting cluster")
 
    search_service = deploy_search(CLUSTER, SEARCH_SERVICE_NAME, SEARCH_SERVICE_CONFIG, SEARCH_SOLR_HOST, SEARCH_SOLR_CONFIG, SEARCH_GW_HOSTS, SEARCH_GW_CONFIG)
-   print "Deployed Search service " + SEARCH_SERVICE_NAME + " using SOLRHost " + SEARCH_SOLR_HOST
+   print("Deployed Search service " + SEARCH_SERVICE_NAME + " using SOLRHost " + SEARCH_SOLR_HOST)
    
    flume_service = deploy_flume(CLUSTER, FLUME_SERVICE_NAME, FLUME_SERVICE_CONFIG, FLUME_AGENT_HOSTS, FLUME_AGENT_CONFIG)
-   print "Deployed Flume service " + FLUME_SERVICE_NAME + " using FlumeAgents on "
+   print("Deployed Flume service " + FLUME_SERVICE_NAME + " using FlumeAgents on ")
    PRETTY_PRINT.pprint(FLUME_AGENT_HOSTS)
    
    oozie_service = deploy_oozie(CLUSTER, OOZIE_SERVICE_NAME, OOZIE_SERVICE_CONFIG, OOZIE_SERVER_HOST, OOZIE_SERVER_CONFIG)
-   print "Deployed Oozie service " + OOZIE_SERVICE_NAME + " using OozieServer on " + OOZIE_SERVER_HOST
+   print("Deployed Oozie service " + OOZIE_SERVICE_NAME + " using OozieServer on " + OOZIE_SERVER_HOST)
    
    sqoop_service = deploy_sqoop(CLUSTER, SQOOP_SERVICE_NAME, SQOOP_SERVICE_CONFIG, SQOOP_SERVER_HOST, SQOOP_SERVER_CONFIG)
-   print "Deployed Sqoop service " + SQOOP_SERVICE_NAME + " using SqoopServer on " + SQOOP_SERVER_HOST
+   print("Deployed Sqoop service " + SQOOP_SERVICE_NAME + " using SqoopServer on " + SQOOP_SERVER_HOST)
    
    hue_service = deploy_hue(CLUSTER, HUE_SERVICE_NAME, HUE_SERVICE_CONFIG, HUE_SERVER_HOST, HUE_SERVER_CONFIG, HUE_KTR_HOST, HUE_KTR_CONFIG)
-   print "Deployed HUE service " + HUE_SERVICE_NAME + " using HueServer on " + HUE_SERVER_HOST
+   print("Deployed HUE service " + HUE_SERVICE_NAME + " using HueServer on " + HUE_SERVER_HOST)
    
    #deploy_accumulo(CLUSTER, ACCUMULO_SERVICE_NAME, ACCUMULO_SERVICE_CONFIG, ACCUMULO_MASTER_HOSTS, ACCUMULO_MASTER_CONFIG, ACCUMULO_TRACER_HOSTS, ACCUMULO_TRACER_CONFIG, ACCUMULO_TSERVER_HOSTS, ACCUMULO_TSERVER_CONFIG, ACCUMULO_LOGGER_HOSTS, ACCUMULO_LOGGER_CONFIG, ACCUMULO_MONITOR_HOST, ACCUMULO_MONITOR_CONFIG, ACCUMULO_GC_HOST, ACCUMULO_GC_CONFIG, ACCUMULO_GATEWAY_HOSTS, ACCUMULO_GATEWAY_CONFIG)
    
-   print "About to restart cluster."
+   print("About to restart cluster.")
    CLUSTER.stop().wait()
    CLUSTER.start().wait()
-   print "Done restarting cluster."
+   print("Done restarting cluster.")
    
    post_startup(CLUSTER, hdfs_service, oozie_service)
 
-   print "Finished deploying Cloudera cluster. Go to http://" + CM_HOST + ":7180 to administer the cluster."
-   print "If the Oozie service (and therefore the HUE service as well, which depends on it) did not start properly, go to the Oozie service, stop it, click on the Actions button and choose 'Create Database', then start it."
-   print "If there are any other services not running, restart them now."
+   print("Finished deploying Cloudera cluster. Go to http://" + CM_HOST + ":7180 to administer the cluster.")
+   print("If the Oozie service (and therefore the HUE service as well, which depends on it) did not start properly, go to the Oozie service, stop it, click on the Actions button and choose 'Create Database', then start it.")
+   print("If there are any other services not running, restart them now.")
    
    
 if __name__ == "__main__":

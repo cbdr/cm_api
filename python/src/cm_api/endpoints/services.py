@@ -137,7 +137,7 @@ class ApiService(BaseApiResource):
     """
     svc_config = json_to_config(json_dic, view == 'full')
     rt_configs = { }
-    if json_dic.has_key(ROLETYPES_CFG_KEY):
+    if ROLETYPES_CFG_KEY in json_dic:
       for rt_config in json_dic[ROLETYPES_CFG_KEY]:
         rt_configs[rt_config['roleType']] = \
             json_to_config(rt_config, view == 'full')
@@ -536,7 +536,7 @@ class ApiService(BaseApiResource):
       data = { }
     if rt_configs:
       rt_list = [ ]
-      for rt, cfg in rt_configs.iteritems():
+      for rt, cfg in rt_configs.items():
         rt_data = config_to_api_list(cfg)
         rt_data['roleType'] = rt
         rt_list.append(rt_data)
@@ -1474,14 +1474,14 @@ class ApiService(BaseApiResource):
 
     if self.type == 'HDFS':
       if not isinstance(arguments, ApiHdfsReplicationArguments):
-        raise TypeError, 'Unexpected type for HDFS replication argument.'
+        raise TypeError('Unexpected type for HDFS replication argument.')
       schedule.hdfsArguments = arguments
     elif self.type == 'HIVE':
       if not isinstance(arguments, ApiHiveReplicationArguments):
-        raise TypeError, 'Unexpected type for Hive replication argument.'
+        raise TypeError('Unexpected type for Hive replication argument.')
       schedule.hiveArguments = arguments
     else:
-      raise TypeError, 'Replication is not supported for service type ' + self.type
+      raise TypeError('Replication is not supported for service type ' + self.type)
 
     return self._post("replications", ApiReplicationSchedule, True, [schedule],
         api_version=3)[0]
@@ -1901,7 +1901,7 @@ class ApiServiceSetupInfo(ApiService):
 
     if self.config is None:
       self.config = { }
-    if not self.config.has_key(ROLETYPES_CFG_KEY):
+    if ROLETYPES_CFG_KEY not in self.config:
       self.config[ROLETYPES_CFG_KEY] = [ ]
     self.config[ROLETYPES_CFG_KEY].append(rt_config)
 

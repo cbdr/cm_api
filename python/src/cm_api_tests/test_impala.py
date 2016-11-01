@@ -34,7 +34,7 @@ class TestImpala(unittest.TestCase):
         params={ 'from':time.isoformat(), 'to':time.isoformat(), \
             'filter':'', 'limit':100, 'offset':0 })
     resp = service.get_impala_queries(time, time)
-    self.assertEquals(0, len(resp.queries))
+    self.assertEqual(0, len(resp.queries))
 
   def test_get_details(self):
     resource = utils.MockResource(self)
@@ -44,7 +44,7 @@ class TestImpala(unittest.TestCase):
         retdata={ 'details': '' },
         params={ 'format':'text' } )
     resp = service.get_query_details('randomId')
-    self.assertEquals('', resp.details)
+    self.assertEqual('', resp.details)
 
   def test_cancel_query(self):
     resource = utils.MockResource(self)
@@ -53,7 +53,7 @@ class TestImpala(unittest.TestCase):
     resource.expect("POST", "/cm/service/impalaQueries/randomId/cancel",
         retdata={ 'warning' : 'test' })
     resp = service.cancel_impala_query('randomId')
-    self.assertEquals('test', resp.warning)
+    self.assertEqual('test', resp.warning)
 
   def test_attributes(self):
     IMPALA_QUERY_ATTRS = '''{
@@ -87,10 +87,10 @@ class TestImpala(unittest.TestCase):
     resource.expect("GET", "/cm/service/impalaQueries/attributes",
                     retdata=json.loads(IMPALA_QUERY_ATTRS))
     resp = service.get_impala_query_attributes()
-    self.assertEquals(3, len(resp))
+    self.assertEqual(3, len(resp))
     attr = resp[0]
     self.assertIsInstance(attr, ApiImpalaQueryAttribute)
-    self.assertEquals('query_type', attr.name)
-    self.assertEquals(True, attr.supportsHistograms)
+    self.assertEqual('query_type', attr.name)
+    self.assertEqual(True, attr.supportsHistograms)
 
 

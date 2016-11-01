@@ -84,16 +84,16 @@ def set_up_cluster():
 
     # install hosts on this CM instance
     cmd = cm.host_install(host_username, host_list, password=host_password, cm_repo_url=cm_repo_url) 
-    print "Installing hosts. This might take a while."
+    print("Installing hosts. This might take a while.")
     while cmd.success == None:
 	sleep(5)
         cmd = cmd.fetch()
 
     if cmd.success != True:
-        print "cm_host_install failed: " + cmd.resultMessage
+        print("cm_host_install failed: " + cmd.resultMessage)
         exit(0)
 
-    print "cm_host_install succeeded"
+    print("cm_host_install succeeded")
 
     # first auto-assign roles and auto-configure the CM service
     cm.auto_assign_roles()
@@ -109,14 +109,14 @@ def set_up_cluster():
 
     parcels_list = []
     # get and list all available parcels
-    print "Available parcels:"
+    print("Available parcels:")
     for p in cluster.get_all_parcels():
-        print '\t' + p.product + ' ' + p.version
+        print('\t' + p.product + ' ' + p.version)
         if p.version.startswith(cdh_version_number) and p.product == "CDH":
 	    parcels_list.append(p)
 
     if len(parcels_list) == 0:
-        print "No " + cdh_version + " parcel found!"
+        print("No " + cdh_version + " parcel found!")
         exit(0)
 
     cdh_parcel = parcels_list[0]
@@ -125,10 +125,10 @@ def set_up_cluster():
 	    cdh_parcel = p
 
     # download the parcel
-    print "Starting parcel download. This might take a while."
+    print("Starting parcel download. This might take a while.")
     cmd = cdh_parcel.start_download()
     if cmd.success != True:
-        print "Parcel download failed!"
+        print("Parcel download failed!")
         exit(0)
 
     # make sure the download finishes
@@ -136,13 +136,13 @@ def set_up_cluster():
 	sleep(5)
         cdh_parcel = get_parcel(api, cdh_parcel.product, cdh_parcel.version, cluster_name)
 
-    print cdh_parcel.product + ' ' + cdh_parcel.version + " downloaded"
+    print(cdh_parcel.product + ' ' + cdh_parcel.version + " downloaded")
 
     # distribute the parcel
-    print "Starting parcel distribution. This might take a while."
+    print("Starting parcel distribution. This might take a while.")
     cmd = cdh_parcel.start_distribution()
     if cmd.success != True:
-        print "Parcel distribution failed!"
+        print("Parcel distribution failed!")
         exit(0)
 
 
@@ -151,36 +151,36 @@ def set_up_cluster():
 	sleep(5)
 	cdh_parcel = get_parcel(api, cdh_parcel.product, cdh_parcel.version, cluster_name)
 
-    print cdh_parcel.product + ' ' + cdh_parcel.version + " distributed"
+    print(cdh_parcel.product + ' ' + cdh_parcel.version + " distributed")
 
     # activate the parcel
     cmd = cdh_parcel.activate()
     if cmd.success != True:
-        print "Parcel activation failed!"
+        print("Parcel activation failed!")
         exit(0)
 
     # make sure the activation finishes
     while cdh_parcel.stage != "ACTIVATED":
 	cdh_parcel = get_parcel(api, cdh_parcel.product, cdh_parcel.version, cluster_name)
 
-    print cdh_parcel.product + ' ' + cdh_parcel.version + " activated"
+    print(cdh_parcel.product + ' ' + cdh_parcel.version + " activated")
 
     # inspect hosts and print the result
-    print "Inspecting hosts. This might take a few minutes."
+    print("Inspecting hosts. This might take a few minutes.")
 
     cmd = cm.inspect_hosts()
     while cmd.success == None:
         cmd = cmd.fetch()
 
     if cmd.success != True:
-        print "Host inpsection failed!"
+        print("Host inpsection failed!")
         exit(0)
 
-    print "Hosts successfully inspected: \n" + cmd.resultMessage
+    print("Hosts successfully inspected: \n" + cmd.resultMessage)
 
     # create all the services we want to add; we will only create one instance
     # of each
-    for s in service_types_and_names.keys():
+    for s in list(service_types_and_names.keys()):
         service = cluster.create_service(service_types_and_names[s], s)
 
     # we will auto-assign roles; you can manually assign roles using the
@@ -211,7 +211,7 @@ def set_up_cluster():
             rm_role = r
 
     if rm_role == None:
-	print "No REPORTSMANAGER role found!"
+	print("No REPORTSMANAGER role found!")
         exit(0)
 
     # then we get the corresponding role config group -- even though there is
@@ -235,17 +235,17 @@ def set_up_cluster():
     cm_service.restart().wait()
 
     # execute the first run command
-    print "Excuting first run command. This might take a while."
+    print("Excuting first run command. This might take a while.")
     cmd = cluster.first_run()
 
     while cmd.success == None:
         cmd = cmd.fetch()
 
     if cmd.success != True:
-        print "The first run command failed: " + cmd.resultMessage()
+        print("The first run command failed: " + cmd.resultMessage())
         exit(0)
 
-    print "First run successfully executed. Your cluster has been set up!"
+    print("First run successfully executed. Your cluster has been set up!")
 
 
 def main():

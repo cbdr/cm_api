@@ -15,11 +15,11 @@
 # limitations under the License.
 
 import os
-import cookielib
+import http.cookiejar
 import logging
 import posixpath
 import types
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 try:
   import socks
@@ -32,7 +32,7 @@ try:
 except ImportError:
   pass
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 __docformat__ = "epytext"
 
@@ -91,15 +91,15 @@ class HttpClient(object):
     self._headers = { }
 
     # Make a basic auth handler that does nothing. Set credentials later.
-    self._passmgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-    authhandler = urllib2.HTTPBasicAuthHandler(self._passmgr)
+    self._passmgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+    authhandler = urllib.request.HTTPBasicAuthHandler(self._passmgr)
 
     # Make a cookie processor
-    cookiejar = cookielib.CookieJar()
+    cookiejar = http.cookiejar.CookieJar()
 
-    self._opener = urllib2.build_opener(
+    self._opener = urllib.request.build_opener(
         HTTPErrorProcessor(),
-        urllib2.HTTPCookieProcessor(cookiejar),
+        urllib.request.HTTPCookieProcessor(cookiejar),
         authhandler)
 
 
@@ -158,19 +158,19 @@ class HttpClient(object):
         data = None
 
     # Setup the request
-    request = urllib2.Request(url, data)
+    request = urllib.request.Request(url, data)
     # Hack/workaround because urllib2 only does GET and POST
     request.get_method = lambda: http_method
 
     headers = self._get_headers(headers)
-    for k, v in headers.items():
+    for k, v in list(headers.items()):
       request.add_header(k, v)
 
     # Call it
     self.logger.debug("%s %s" % (http_method, url))
     try:
       return self._opener.open(request)
-    except urllib2.HTTPError, ex:
+    except urllib.error.HTTPError as ex:
       raise self._exc_class(ex)
 
   def _make_url(self, path, params):
@@ -178,7 +178,7 @@ class HttpClient(object):
     if path:
       res += posixpath.normpath('/' + path.lstrip('/'))
     if params:
-      param_str = urllib.urlencode(params, True)
+      param_str = urllib.parse.urlencode(params, True)
       res += '?' + param_str
     return iri_to_uri(res)
 
@@ -223,7 +223,7 @@ def iri_to_uri(iri):
     # converted.
     if iri is None:
         return iri
-    return urllib.quote(smart_str(iri), safe="/#%[]=:;$&()+,!?*@'~")
+    return urllib.parse.quote(smart_str(iri), safe="/#%[]=:;$&()+,!?*@'~")
 
 #
 # Method copied from Django
@@ -234,9 +234,9 @@ def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
 
     If strings_only is True, don't convert (some) non-string-like objects.
     """
-    if strings_only and isinstance(s, (types.NoneType, int)):
+    if strings_only and isinstance(s, (type(None), int)):
         return s
-    elif not isinstance(s, basestring):
+    elif not isinstance(s, str):
         try:
             return str(s)
         except UnicodeEncodeError:
@@ -246,8 +246,8 @@ def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
                 # further exception.
                 return ' '.join([smart_str(arg, encoding, strings_only,
                         errors) for arg in s])
-            return unicode(s).encode(encoding, errors)
-    elif isinstance(s, unicode):
+            return str(s).encode(encoding, errors)
+    elif isinstance(s, str):
         return s.encode(encoding, errors)
     elif s and encoding != 'utf-8':
         return s.decode('utf-8', errors).encode(encoding, errors)

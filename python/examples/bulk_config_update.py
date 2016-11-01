@@ -173,7 +173,7 @@ def read_host_file(path):
   Read the host file. Return a list of hostnames.
   """
   res = []
-  for l in file(path).xreadlines():
+  for l in file(path):
     hostname = l.strip()
     if hostname:
       res.append(hostname)
@@ -187,7 +187,7 @@ def setup_logging(level):
 
 def usage():
   doc = inspect.getmodule(usage).__doc__
-  print >>sys.stderr, textwrap.dedent(doc % (sys.argv[0],))
+  print(textwrap.dedent(doc % (sys.argv[0],)), file=sys.stderr)
 
 
 def main(argv):
@@ -196,8 +196,8 @@ def main(argv):
   # Argument parsing
   try:
     opts, args = getopt.getopt(argv[1:], "hf:")
-  except getopt.GetoptError, err:
-    print >>sys.stderr, err
+  except getopt.GetoptError as err:
+    print(err, file=sys.stderr)
     usage()
     return -1
 
@@ -209,12 +209,12 @@ def main(argv):
     elif option == '-f':
       host_file = val
     else:
-      print >>sys.stderr, "Unknown flag:", option
+      print("Unknown flag:", option, file=sys.stderr)
       usage()
       return -1
 
   if args:
-    print >>sys.stderr, "Unknown trailing argument:", args
+    print("Unknown trailing argument:", args, file=sys.stderr)
     usage()
     return -1
 

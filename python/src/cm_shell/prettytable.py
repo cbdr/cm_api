@@ -38,8 +38,8 @@ import textwrap
 
 py3k = sys.version_info[0] >= 3
 if py3k:
-    unicode = str
-    basestring = str
+    str = str
+    str = str
     from html import escape
 else:
     from cgi import escape
@@ -67,10 +67,10 @@ def _get_size(text):
     return (max_width, max_height)
         
 def _unicode(value, encoding="UTF-8"):
-    if not isinstance(value, basestring):
+    if not isinstance(value, str):
         value = str(value)
-    if not isinstance(value, unicode):
-        value = unicode(value, encoding, "replace")
+    if not isinstance(value, str):
+        value = str(value, encoding, "replace")
     return value
 
 class PrettyTable(object):
@@ -239,7 +239,7 @@ class PrettyTable(object):
         if val == "":
             return
         try:
-            assert type(val) in (str, unicode)
+            assert type(val) in (str, str)
             assert val.isdigit()
         except AssertionError:
             raise Exception("Invalid value for %s!  Must be an integer format string." % name)
@@ -248,7 +248,7 @@ class PrettyTable(object):
         if val == "":
             return
         try:
-            assert type(val) in (str, unicode)
+            assert type(val) in (str, str)
             assert "." in val
             bits = val.split(".")
             assert len(bits) <= 2
@@ -860,7 +860,7 @@ class PrettyTable(object):
         for index, value in enumerate(row):
             row[index] = self._format_value(self.field_names[index], value)
 
-        for index, field, value, width, in zip(range(0,len(row)), self._field_names, row, self._widths):
+        for index, field, value, width, in zip(list(range(0,len(row))), self._field_names, row, self._widths):
             # Enforce max widths
             max_width = self._max_width.get(field, 0)
             lines = _unicode(value).split("\n")
