@@ -183,7 +183,7 @@ class HttpClient(object):
     return iri_to_uri(res)
 
 
-class HTTPErrorProcessor(urllib2.HTTPErrorProcessor):
+class HTTPErrorProcessor(urllib.request.HTTPErrorProcessor):
   """
   Python 2.4 only recognize 200 and 206 as success. It's broken. So we install
   the following processor to catch the bug.
@@ -191,7 +191,7 @@ class HTTPErrorProcessor(urllib2.HTTPErrorProcessor):
   def http_response(self, request, response):
     if 200 <= response.code < 300:
       return response
-    return urllib2.HTTPErrorProcessor.http_response(self, request, response)
+    return urllib.request.HTTPErrorProcessor.http_response(self, request, response)
 
   https_response = http_response
 

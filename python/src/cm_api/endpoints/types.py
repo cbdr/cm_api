@@ -133,7 +133,7 @@ def call(method, path, ret_type,
   """
   check_api_version(method.__self__, api_version)
   if data is not None:
-    data = json.dumps(Attr(is_api_list=True).to_json(data, False))
+    data = json.dumps(Attr(is_api_list=True).to_json(data, False)).encode('ascii')
     ret = method(path, data=data, params=params)
   else:
     ret = method(path, params=params)

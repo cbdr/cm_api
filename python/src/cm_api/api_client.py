@@ -42,7 +42,7 @@ class ApiException(RestException):
     RestException.__init__(self, error)
     try:
       # See if the body is json
-      json_body = json.loads(self._message)
+      json_body = json.loads(self._message.decode())
       self._message = json_body['message']
     except (ValueError, KeyError):
       pass    # Ignore json parsing error

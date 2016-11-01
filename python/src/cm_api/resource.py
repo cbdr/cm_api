@@ -83,10 +83,10 @@ class Resource(object):
 
     # Is the response application/json?
     if len(body) != 0 and \
-          resp.info().getmaintype() == "application" and \
-          resp.info().getsubtype() == "json":
+          resp.info().get_content_maintype() == "application" and \
+          resp.info().get_content_subtype() == "json":
       try:
-        json_dict = json.loads(body)
+        json_dict = json.loads(body.decode())
         return json_dict
       except Exception as ex:
         self._client.logger.exception('JSON decode error: %s' % (body,))
